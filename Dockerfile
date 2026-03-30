@@ -3,7 +3,8 @@ FROM golang:1.26-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache git
 
-RUN go install github.com/mxpv/podsync@latest
+# instalacja poprawnej ścieżki
+RUN go install github.com/mxpv/podsync/cmd/podsync@latest
 
 FROM alpine:latest
 
