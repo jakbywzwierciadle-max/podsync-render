@@ -11,8 +11,8 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /go/bin/podsync /app/podsync
-COPY config.toml /config.toml
+COPY config.yaml /config.yaml
 
 EXPOSE 8080
 
-CMD ["/app/podsync", "-c", "/config.toml"]
+CMD ["/app/podsync", "-c", "/config.yaml"]
