@@ -3,14 +3,17 @@ FROM golang:1.22-alpine AS builder
 WORKDIR /app
 RUN apk add --no-cache git
 
-RUN git clone https://github.com/mxpv/podsync.git .
-RUN go build -o podsync
+# instalacja podsync (działa z modułami)
+RUN go install github.com/mxpv/podsync@latest
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/podsync /app/podsync
+# kopiujemy binarkę z GOPATH
+COPY --from=builder /go/bin/podsync /app/podsync
+
+# config
 COPY config.yml /config.yml
 
 EXPOSE 8080
