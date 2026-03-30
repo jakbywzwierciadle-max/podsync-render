@@ -1,5 +1,6 @@
 FROM ghcr.io/mxpv/podsync:latest
 
+# Kopiujemy config do kontenera
 COPY config.toml /app/config.toml
 
 WORKDIR /app
@@ -9,6 +10,5 @@ RUN mkdir -p /app/data
 
 EXPOSE 8080
 
-CMD ["podsync"]
 # Uruchamiamy Podsync
 CMD ["podsync"]
