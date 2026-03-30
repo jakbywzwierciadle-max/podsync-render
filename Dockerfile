@@ -1,11 +1,5 @@
-# Używamy community obrazu tdeutsch/podsync
-FROM tdeutsch/podsync:latest
-
+FROM tdeutsch/podsync:v0.2.0
 WORKDIR /app
-
-# Kopiujemy Twój config
 COPY config.toml /config.toml
-
 EXPOSE 8080
-
 CMD ["podsync", "-c", "/config.toml"]
