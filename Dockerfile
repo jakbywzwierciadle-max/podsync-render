@@ -15,4 +15,4 @@ COPY config.toml /config.toml
 
 EXPOSE 8080
 
-CMD ["/app/podsync", "-c", "/config.yml"]
+CMD ["/app/podsync", "-c", "/config.toml"]
