@@ -1,18 +1,11 @@
-# Plik config.yml dla Podsync na Render
 storage:
   type: local
-  path: /tmp/data   # Render wymaga /tmp lub Persistent Disk, jeśli chcesz dane zachować
+  path: /tmp/data
 
-# Lista kanałów/feedów do synchronizacji
-feeds:
-  - url: https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ
-    name: spizarnia
-    format: mp4     # format wideo
-    quality: best   # najlepsza jakość
-
-  
-# Opcjonalnie: ustawienia serwera RSS (jeżeli chcesz podłączyć do podcasta)
 server:
   host: 0.0.0.0
   port: 8080
-  base_url: https://twoja-domena.onrender.com  # wstaw URL swojej aplikacji Render
+  base_url: "https://twoja-appka.onrender.com"
+
+feeds:
+  - url: "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
