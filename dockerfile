@@ -1,14 +1,14 @@
-# Używamy obrazu Podsync z GitHub Container Registry
 FROM ghcr.io/mxpv/podsync:latest
 
-# Kopiujemy config do kontenera
 COPY config.toml /app/config.toml
 
-# Ustawiamy katalog roboczy
 WORKDIR /app
 
-# Otwieramy port 8080
+# Utwórz katalog do danych
+RUN mkdir -p /app/data
+
 EXPOSE 8080
 
+CMD ["podsync"]
 # Uruchamiamy Podsync
 CMD ["podsync"]
