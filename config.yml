@@ -5,21 +5,12 @@ storage:
 
 # Lista kanałów/feedów do synchronizacji
 feeds:
-  - url: https://www.youtube.com/c/PrzykladowyKanal1
-    name: kanal1
+  - url: https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ
+    name: spizarnia
     format: mp4     # format wideo
     quality: best   # najlepsza jakość
 
-  - url: https://www.youtube.com/c/PrzykladowyKanal2
-    name: kanal2
-    format: mp4
-    quality: best
-
-  - url: https://www.youtube.com/c/PrzykladowyKanal3
-    name: kanal3
-    format: mp4
-    quality: best
-
+  
 # Opcjonalnie: ustawienia serwera RSS (jeżeli chcesz podłączyć do podcasta)
 server:
   host: 0.0.0.0
