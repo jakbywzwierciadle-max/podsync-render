@@ -1,13 +1,5 @@
-FROM tdeutsch/podsync:latest
+FROM docker.io/mrpio/podsync:latest
 
-WORKDIR /app
+COPY config.yml /config.yml
 
-# Tworzymy katalog dla danych
-RUN mkdir -p /tmp/data
-
-# Kopiujemy konfigurację
-COPY config.toml /config.toml
-
-EXPOSE 8080
-
-CMD ["podsync", "-c", "/config.toml"]
+CMD ["podsync", "-c", "/config.yml"]
