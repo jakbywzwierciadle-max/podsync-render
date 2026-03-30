@@ -1,14 +1,15 @@
-# Plik: config.toml – działający minimalny dla Render
+# Podstawowy config dla Podsync
+# bazowany na oryginalnym config.toml.example projektu Podsync
+
+[server]
+port = 8080
+hostname = "https://twoja-appka.onrender.com"
 
 [storage]
 type = "local"
-path = "/tmp/data"       # katalog na pobrane pliki i cache
+[storage.local]
+data_dir = "/app/data"
 
-[server]
-host = "0.0.0.0"
-port = 8080
-base_url = "https://twoja-appka.onrender.com"  # zmień na własną domenę Render
-
-# Feed YouTube – minimalna wersja, działa w obecnej wersji Podsync
-[[feeds]]
-url = "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
+[feeds]
+  [feeds.kanal1]
+  url = "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
