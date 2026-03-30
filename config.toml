@@ -1,17 +1,14 @@
+
+
+
+[storage]
+type = "local"
+path = "/tmp/data"
+
 [server]
+host = "0.0.0.0"
 port = 8080
-base_url = "https://twoj-serwer.onrender.com"
+base_url = "https://twoja-appka.onrender.com"
 
-[general]
-format = "mp3"
-max_items = 0
-
-[data]
-path = "/app/data"
-
-[[channels]]
-name = "Moj_YT_Kanal"
-type = "youtube_channel"
+[[feeds]]
 url = "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
-max_items = 0
-cleanup = true
