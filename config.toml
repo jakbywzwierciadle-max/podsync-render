@@ -1,15 +1,12 @@
-# Podstawowy config dla Podsync
-# bazowany na oryginalnym config.toml.example projektu Podsync
+# config.toml
 
-[server]
-port = 8080
-hostname = "https://twoja-appka.onrender.com"
+# katalog danych do zapisywania historii i metadanych
+DataDir = "/podsync/data"
 
-[storage]
-type = "local"
-[storage.local]
-data_dir = "/app/data"
-
-[feeds]
-  [feeds.kanal1]
-  url = "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
+# pojedynczy kanał YouTube
+[[Feeds]]
+URL = "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
+Folder = "/podsync/media/example"
+Formats = ["mp3"]
+Keep = -1
+AutoSync = true
