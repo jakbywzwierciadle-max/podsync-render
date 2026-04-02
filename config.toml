@@ -1,8 +1,12 @@
-DataDir = "/podsync/data"
+[server]
+port = 8080
+data_dir = "/app/data"
 
-[[Feeds]]
-URL = "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
-Folder = "/podsync/media/example"
-Formats = ["mp3"]
-Keep = -1
-AutoSync = true
+[tokens]
+youtube = "TWÓJ_TOKEN_YOUTUBE"
+
+[[feeds]]
+url = "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
+update_period = "1h"
+quality = "high"
+format = "audio"
