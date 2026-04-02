@@ -1,9 +1,5 @@
-# config.toml
-
-# katalog danych do zapisywania historii i metadanych
 DataDir = "/podsync/data"
 
-# pojedynczy kanał YouTube
 [[Feeds]]
 URL = "https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
 Folder = "/podsync/media/example"
