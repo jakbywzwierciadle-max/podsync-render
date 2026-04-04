@@ -8,6 +8,10 @@ COOKIES_FILE="/app/cookies.txt"
 
 mkdir -p "$DATA_DIR"
 
+# 1. AKTUALIZACJA PRZEZ PIP (Naprawia błąd: You installed yt-dlp with pip)
+echo "Sprawdzam aktualizacje yt-dlp..."
+pip install --upgrade yt-dlp
+
 if [ ! -f "$CHANNELS_FILE" ]; then
     echo "Błąd: Plik $CHANNELS_FILE nie istnieje!"
     exit 1
@@ -19,12 +23,12 @@ while read -r URL || [ -n "$URL" ]; do
 
     echo "--- Przetwarzam: $URL ---"
 
-    # ZMIANA: Wywalamy 'web' z klientów, zostawiamy tylko urządzenia mobilne i TV
-    # Dodajemy --no-check-certificate na wypadek problemów z SSL na Railway
-    yt-dlp --update-to nightly \
+    # 2. KOMENDA BEZ FLAGI --update (Aktualizacja została zrobiona wyżej przez pip)
+    # Używamy tylko mobilnych klientów, by ominąć "Requested format is not available"
+    yt-dlp \
         --cookies "$COOKIES_FILE" \
         --user-agent "Mozilla/5.0 (Android 14; Mobile; rv:124.0) Gecko/124.0 Firefox/124.0" \
-        --extractor-args "youtube:player-client=android,ios,tv;skip=webpage_signature" \
+        --extractor-args "youtube:player-client=android,ios;skip=webpage_signature" \
         --force-ipv4 \
         --no-check-certificate \
         --match-filter "live_status != upcoming" \
@@ -47,7 +51,5 @@ if [ -f "/app/dir2cast.php" ]; then
     php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
     echo "RSS wygenerowany pomyślnie."
 fi
-
-echo "=== Zakończono: $(date) ==="
 
 echo "=== Zakończono: $(date) ==="
