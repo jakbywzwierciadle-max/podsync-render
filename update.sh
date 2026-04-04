@@ -15,8 +15,8 @@ download_new() {
 
     yt-dlp \
       -f "ba[language=pl]/bestaudio[language=pl]/bestaudio" \
-      --playlist-end 2 \
-      --max-downloads 2 \
+      --playlist-end 1 \
+      --max-downloads 1 \
       --dateafter now-7days \
       --extractor-args "youtube:player_client=android" \
       --ignore-errors \
