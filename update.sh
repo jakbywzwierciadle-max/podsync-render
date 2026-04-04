@@ -4,6 +4,7 @@ echo "=== Aktualizacja $(date) ==="
 
 DATA_DIR="/data"
 CHANNELS_FILE="/app/channels.txt"
+COOKIES_FILE="/app/cookies.txt"
 
 mkdir -p "$DATA_DIR"
 
@@ -14,6 +15,7 @@ while IFS= read -r URL; do
     echo "Pobieram z: $URL"
 
     yt-dlp \
+        --cookies "$COOKIES_FILE" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
