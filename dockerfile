@@ -1,10 +1,12 @@
-FROM php:8.2-cli
+FROM python:3.11-slim
 
-# yt-dlp + narzędzia
+# system deps
 RUN apt-get update && apt-get install -y \
-    python3 python3-pip ffmpeg \
-    && pip3 install yt-dlp \
+    php-cli ffmpeg nodejs \
     && rm -rf /var/lib/apt/lists/*
+
+# yt-dlp
+RUN pip install yt-dlp Flask
 
 WORKDIR /app
 
@@ -13,13 +15,12 @@ COPY update.sh /app/update.sh
 COPY dir2cast.php /app/dir2cast.php
 COPY dir2cast.ini /app/dir2cast.ini
 COPY channels.txt /app/channels.txt
+COPY app.py /app/app.py
 
 RUN chmod +x /app/update.sh
 
-# katalog na dane (Railway podmontuje tu storage)
 VOLUME ["/data"]
 
-# uruchamiamy:
-# 1) pętlę update (w tle)
-# 2) serwer HTTP serwujący /data (w tym feed.xml)
-CMD bash -c "/app/update.sh & php -S 0.0.0.0:8080 -t /data"
+EXPOSE 3000
+
+CMD bash -c "/app/update.sh & python /app/app.py"
