@@ -18,22 +18,18 @@ while IFS= read -r URL || [ -n "$URL" ]; do
 
     echo "--- Przetwarzam: $URL ---"
 
-    # Jedna długa linia polecenia jest bezpieczniejsza w Dockerze/Railway
-    yt-dlp --update \
-        --cookies "$COOKIES_FILE" \
-        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
-        --extractor-args "youtube:player-client=web,android,ios" \
-        --force-ipv4 \
-        --match-filter "live_status != upcoming" \
-        -f "ba/b" \
-        --extract-audio \
-        --audio-format mp3 \
-        --audio-quality 0 \
-        --playlist-end 2 \
-        --no-warnings \
-        --ignore-errors \
-        --no-mtime \
-        --download-archive "$DATA_DIR/downloaded.txt" \
+    # Komenda yt-dlp w jednej linii, aby uniknąć błędów składni bash
+    yt-dlp --update --cookies "$COOKIES_FILE" --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" --extractor-args "youtube:player-client=android,web" --force-ipv4 --match-filter "live_status != upcoming" -f "ba/b" --extract-audio --audio-format mp3 --audio-quality 0 --playlist-end 2 --no-warnings --ignore-errors --no-mtime --download-archive "$DATA_DIR/downloaded.txt" --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" "$URL"
+
+done < "$CHANNELS_FILE"
+
+echo "Generuję RSS..."
+if [ -f "/app/dir2cast.php" ]; then
+    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
+    echo "RSS wygenerowany pomyślnie."
+fi
+
+echo "=== Zakończono: $(date) ==="
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
         "$URL"
 
