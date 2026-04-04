@@ -9,14 +9,15 @@ COOKIES_FILE="/app/cookies.txt"
 mkdir -p "$DATA_DIR"
 
 while IFS= read -r URL; do
-    # Pomijamy puste linie i komentarze
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
 
     echo "Pobieram z: $URL"
 
     yt-dlp \
         --cookies "$COOKIES_FILE" \
+        -f bestaudio \
         --extract-audio \
+        --audio-format mp3 \
         --audio-quality 0 \
         --playlist-end 1 \
         --match-filter "!is_live" \
