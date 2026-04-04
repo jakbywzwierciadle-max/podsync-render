@@ -6,34 +6,52 @@ DATA_DIR="/data"
 CHANNELS_FILE="/app/channels.txt"
 COOKIES_FILE="/app/cookies.txt"
 
+# Tworzenie katalogu danych, jeśli nie istnieje
 mkdir -p "$DATA_DIR"
 
-# Sprawdź czy pliki istnieją, żeby uniknąć błędów na starcie
-[ ! -f "$CHANNELS_FILE" ] && echo "Błąd: Brak pliku $CHANNELS_FILE" && exit 1
+# Sprawdzenie czy plik z kanałami istnieje
+if [ ! -f "$CHANNELS_FILE" ]; then
+    echo "Błąd: Plik $CHANNELS_FILE nie istnieje!"
+    exit 1
+fi
 
 while IFS= read -r URL || [ -n "$URL" ]; do
+    # Pomijaj puste linie i komentarze
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
 
-    echo "Pobieram z: $URL"
+    echo "--- Przetwarzam: $URL ---"
 
-    # ZMIANY:
-    # 1. Poprawiony format: "bestaudio/best" bez zbędnych spacji.
-    # 2. Usunięto sztywne ID (18, 22), które często nie pasują do audio-only.
-    # 3. Dodano --update, aby yt-dlp zawsze był aktualny (kluczowe przy błędach pobierania).
-    
     yt-dlp \
         --update \
         --cookies "$COOKIES_FILE" \
         --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
         --extractor-args "youtube:player-client=web,android,ios" \
         --force-ipv4 \
+        --match-filter "live_status != upcoming" \
         -f "bestaudio/best" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
-        --playlist-end 1 \
+        --playlist-end 3 \
         --no-warnings \
         --ignore-errors \
+        --no-mtime \
+        --download-archive "$DATA_DIR/downloaded.txt" \
+        --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
+        "$URL"
+
+done < "$CHANNELS_FILE"
+
+echo "Generuję RSS..."
+# Generowanie pliku XML dla czytników podcastów
+if [ -f "/app/dir2cast.php" ]; then
+    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
+    echo "RSS wygenerowany pomyślnie."
+else
+    echo "Błąd: Nie znaleziono dir2cast.php"
+fi
+
+echo "=== Zakończono: $(date) ==="
         --no-mtime \
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
         "$URL"
