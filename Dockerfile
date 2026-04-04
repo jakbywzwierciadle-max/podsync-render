@@ -13,6 +13,7 @@ COPY dir2cast.php /app/dir2cast.php
 COPY dir2cast.ini /app/dir2cast.ini
 COPY channels.txt /app/channels.txt
 COPY app.py /app/app.py
+COPY cookies.txt /app/cookies.txt
 
 RUN chmod +x /app/update.sh
 
