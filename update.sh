@@ -13,21 +13,21 @@ while IFS= read -r URL; do
 
     echo "Pobieram z: $URL"
 
-    yt-dlp \
-        --cookies "$COOKIES_FILE" \
-        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
-        --extractor-args "youtube:player_client=web" \
-        --force-ipv4 \
-        -f "bestaudio* / bestaudio / best / 18 / 22" \
-        --extract-audio \
-        --audio-format mp3 \
-        --audio-quality 0 \
-        --playlist-end 1 \
-        --match-filter "acodec!=none & !is_live & !was_live" \
-        --no-warnings \
-        --ignore-errors \
-        --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
-        "$URL"
+   yt-dlp \
+    --cookies "$COOKIES_FILE" \
+    --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
+    --extractor-args "youtube:player_client=web" \
+    --force-ipv4 \
+    -f "bestaudio* / bestaudio / best / 18 / 22" \
+    --extract-audio \
+    --audio-format mp3 \
+    --audio-quality 0 \
+    --playlist-end 1 \
+    --no-warnings \
+    --ignore-errors \
+    --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
+    "$URL"
+
 
 done < "$CHANNELS_FILE"
 
