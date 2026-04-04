@@ -15,12 +15,11 @@ while IFS= read -r URL; do
 
     yt-dlp \
         --cookies "$COOKIES_FILE" \
-        -f "bestaudio/best" \
+        -f "ba* / bestaudio / best" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
         --playlist-end 1 \
-        --match-filter "!is_live & !is_dash_manifest" \
         --no-warnings \
         --ignore-errors \
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
