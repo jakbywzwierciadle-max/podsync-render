@@ -16,10 +16,15 @@ if [ ! -f "$CHANNELS_FILE" ]; then
 fi
 
 while IFS= read -r URL || [ -n "$URL" ]; do
-    # Pomijaj puste linie i komentarze
+    # Pomijaj puste linie i komentarze (zaczynające się od #)
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
 
     echo "--- Przetwarzam: $URL ---"
+
+    # KLUCZOWE ZMIANY:
+    # 1. -f "bestaudio/best" - brak spacji naprawia błąd formatu.
+    # 2. --match-filter - pomija premiery (error: Premieres in 8 hours).
+    # 3. --download-archive - zapobiega ponownemu pobieraniu tych samych plików.
 
     yt-dlp \
         --update \
@@ -27,13 +32,31 @@ while IFS= read -r URL || [ -n "$URL" ]; do
         --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
         --extractor-args "youtube:player-client=web,android,ios" \
         --force-ipv4 \
-        --match-filter "live_status != upcoming" \
+        --match-filter "live_status != upcoming & live_status != is_upcoming" \
         -f "bestaudio/best" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
-        --playlist-end 3 \
+        --playlist-end 2 \
         --no-warnings \
+        --ignore-errors \
+        --no-mtime \
+        --download-archive "$DATA_DIR/downloaded.txt" \
+        --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
+        "$URL"
+
+done < "$CHANNELS_FILE"
+
+echo "Generuję RSS..."
+# Generowanie pliku XML dla czytników podcastów
+if [ -f "/app/dir2cast.php" ]; then
+    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
+    echo "RSS wygenerowany pomyślnie."
+else
+    echo "Błąd: Nie znaleziono dir2cast.php"
+fi
+
+echo "=== Zakończono: $(date) ==="
         --ignore-errors \
         --no-mtime \
         --download-archive "$DATA_DIR/downloaded.txt" \
