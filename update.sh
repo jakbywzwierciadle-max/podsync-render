@@ -13,13 +13,15 @@ if [ ! -f "$CHANNELS_FILE" ]; then
     exit 1
 fi
 
-while IFS= read -r URL || [ -n "$URL" ]; do
+while read -r URL || [ -n "$URL" ]; do
+    # Usuń znaki powrotu karetki (Windows) i pomijaj komentarze
+    URL=$(echo "$URL" | tr -d '\r' | xargs)
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
 
     echo "--- Przetwarzam: $URL ---"
 
-    # Komenda yt-dlp w jednej linii, aby uniknąć błędów składni bash
-    yt-dlp --update --cookies "$COOKIES_FILE" --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" --extractor-args "youtube:player-client=android,web" --force-ipv4 --match-filter "live_status != upcoming" -f "ba/b" --extract-audio --audio-format mp3 --audio-quality 0 --playlist-end 2 --no-warnings --ignore-errors --no-mtime --download-archive "$DATA_DIR/downloaded.txt" --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" "$URL"
+    # CAŁA KOMENDA W JEDNEJ LINII - to kluczowe na Railway
+    yt-dlp --update --cookies "$COOKIES_FILE" --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" --extractor-args "youtube:player-client=android,ios,web" --force-ipv4 --match-filter "live_status != upcoming" -f "ba/b" --extract-audio --audio-format mp3 --audio-quality 0 --playlist-end 2 --no-warnings --ignore-errors --no-mtime --download-archive "$DATA_DIR/downloaded.txt" --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" "$URL"
 
 done < "$CHANNELS_FILE"
 
@@ -30,10 +32,6 @@ if [ -f "/app/dir2cast.php" ]; then
 fi
 
 echo "=== Zakończono: $(date) ==="
-        --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
-        "$URL"
-
-done < "$CHANNELS_FILE"
 
 echo "Generuję RSS..."
 if [ -f "/app/dir2cast.php" ]; then
