@@ -19,15 +19,16 @@ while read -r URL || [ -n "$URL" ]; do
 
     echo "--- Przetwarzam: $URL ---"
 
-    # ZMIANA: -f "ba/w*+ba/b" 
-    # To mówi: "Daj najlepsze audio, a jeśli nie możesz, weź najgorsze wideo i złącz z audio, lub po prostu weź cokolwiek co działa"
+    # ZMIANA: Wywalamy 'web' z klientów, zostawiamy tylko urządzenia mobilne i TV
+    # Dodajemy --no-check-certificate na wypadek problemów z SSL na Railway
     yt-dlp --update-to nightly \
         --cookies "$COOKIES_FILE" \
-        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
-        --extractor-args "youtube:player-client=android,ios,web;skip=webpage_signature" \
+        --user-agent "Mozilla/5.0 (Android 14; Mobile; rv:124.0) Gecko/124.0 Firefox/124.0" \
+        --extractor-args "youtube:player-client=android,ios,tv;skip=webpage_signature" \
         --force-ipv4 \
+        --no-check-certificate \
         --match-filter "live_status != upcoming" \
-        -f "bestaudio/best[height<=360]/best" \
+        -f "bestaudio/best" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
@@ -46,5 +47,7 @@ if [ -f "/app/dir2cast.php" ]; then
     php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
     echo "RSS wygenerowany pomyślnie."
 fi
+
+echo "=== Zakończono: $(date) ==="
 
 echo "=== Zakończono: $(date) ==="
