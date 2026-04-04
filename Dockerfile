@@ -11,7 +11,10 @@ RUN pip install yt-dlp Flask
 # Ustawiamy katalog roboczy
 WORKDIR /app
 
-# Kopiujemy cały projekt — to wymusza rebuild przy każdej zmianie
+# Mechanizm wymuszający rebuild przy każdej zmianie
+ARG CACHE_BUST=1
+
+# Kopiujemy cały projekt — Railway nie może użyć cache
 COPY . /app
 
 # Ustawiamy prawa do skryptu aktualizującego
@@ -22,4 +25,3 @@ EXPOSE 3000
 
 # Uruchamiamy update.sh i serwer Flask
 CMD bash -c "/app/update.sh & python /app/app.py"
-
