@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PLAYLIST_URL="https://www.youtube.com/channel/UCO6_hwMtQZ0SLElfDMaqJGQ"
+PLAYLIST_URL="https://www.youtube.com/playlist?list=UUO6_hwMtQZ0SLElfDMaqJGQ"
 
 mkdir -p /data
 
