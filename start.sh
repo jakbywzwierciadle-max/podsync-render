@@ -19,7 +19,7 @@ while true; do
 
   echo "=== Czyszczenie ==="
 
-  ls -t /data/*.mp3 2>/dev/null | tail -n +21 | xargs -r rm --
+  ls -t /data/*.mp3 2>/dev/null | tail -n +3 | xargs -r rm --
 
   echo "=== Sleep ==="
   sleep 3600
