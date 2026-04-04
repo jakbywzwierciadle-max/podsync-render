@@ -17,7 +17,6 @@ while IFS= read -r URL; do
     yt-dlp \
         --cookies "$COOKIES_FILE" \
         --extract-audio \
-        --audio-format mp3 \
         --audio-quality 0 \
         --playlist-end 1 \
         --match-filter "!is_live" \
