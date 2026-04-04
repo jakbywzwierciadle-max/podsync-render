@@ -17,6 +17,8 @@ download_new() {
       -f "ba[language=pl]/bestaudio[language=pl]/bestaudio" \
       --playlist-end 1 \
       --max-downloads 1 \
+      --dateafter now-7days \
+      --extractor-args "youtube:player_client=android" \
       --ignore-errors \
       --no-overwrites \
       --add-metadata \
@@ -35,6 +37,7 @@ cleanup_old() {
       echo "Rozmiar OK: ${SIZE_MB}MB <= ${MAX_SIZE_MB}MB"
       break
     fi
+
     OLDEST_FILE=$(ls -1t "$DATA_DIR" | tail -n 1)
     echo "Za dużo (${SIZE_MB}MB). Usuwam: $OLDEST_FILE"
     rm -f "$DATA_DIR/$OLDEST_FILE"
