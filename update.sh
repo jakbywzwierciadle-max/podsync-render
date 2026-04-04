@@ -2,21 +2,21 @@
 set -e
 
 DATA_DIR=/data
-MAX_SIZE_MB=400        # twardy limit katalogu
+MAX_SIZE_MB=400
 CHANNELS_FILE=/app/channels.txt
 
 mkdir -p "$DATA_DIR"
 
 download_new() {
   while read -r line; do
-    # pomijamy komentarze i puste linie
     [[ -z "$line" || "$line" =~ ^# ]] && continue
 
     echo "Pobieram z: $line"
 
     yt-dlp \
       -f "ba[language=pl]/bestaudio[language=pl]/bestaudio" \
-      --no-playlist \
+      --playlist-end 1 \
+      --max-downloads 1 \
       --ignore-errors \
       --no-overwrites \
       --add-metadata \
@@ -35,15 +35,14 @@ cleanup_old() {
       echo "Rozmiar OK: ${SIZE_MB}MB <= ${MAX_SIZE_MB}MB"
       break
     fi
-
     OLDEST_FILE=$(ls -1t "$DATA_DIR" | tail -n 1)
-    echo "Katalog za duży (${SIZE_MB}MB). Usuwam najstarszy plik: $OLDEST_FILE"
+    echo "Za dużo (${SIZE_MB}MB). Usuwam: $OLDEST_FILE"
     rm -f "$DATA_DIR/$OLDEST_FILE"
   done
 }
 
 generate_feed() {
-  echo "Generuję RSS przez dir2cast..."
+  echo "Generuję RSS..."
   php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
 }
 
