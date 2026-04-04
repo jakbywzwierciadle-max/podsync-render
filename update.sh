@@ -22,7 +22,7 @@ while IFS= read -r URL; do
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
-        --playlist-end 1 \
+        --playlist-end 3 \
         --no-warnings \
         --ignore-errors \
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
