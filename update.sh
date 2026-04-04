@@ -8,6 +8,9 @@ CHANNELS_FILE="/app/channels.txt"
 mkdir -p "$DATA_DIR"
 
 while IFS= read -r URL; do
+    # Pomijamy puste linie i komentarze
+    [[ -z "$URL" || "$URL" =~ ^# ]] && continue
+
     echo "Pobieram z: $URL"
 
     yt-dlp \
@@ -16,6 +19,7 @@ while IFS= read -r URL; do
         --audio-quality 0 \
         --playlist-end 1 \
         --match-filter "!is_live" \
+        --no-warnings \
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
         "$URL"
 
