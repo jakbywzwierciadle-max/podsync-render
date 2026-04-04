@@ -20,8 +20,6 @@ COPY app.py /app/app.py
 
 RUN chmod +x /app/update.sh
 
-VOLUME ["/data"]
-
 EXPOSE 3000
 
 CMD bash -c "/app/update.sh & python /app/app.py"
