@@ -18,7 +18,6 @@ COPY dir2cast.ini /app/dir2cast.ini
 COPY channels.txt /app/channels.txt
 COPY app.py /app/app.py
 
-COPY updater.sh /app/update.sh
 RUN chmod +x /app/update.sh
 
 VOLUME ["/data"]
