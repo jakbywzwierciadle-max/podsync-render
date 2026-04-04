@@ -4,8 +4,8 @@ PLAYLIST_URL="https://www.youtube.com/playlist?list=UUO6_hwMtQZ0SLElfDMaqJGQ"
 
 mkdir -p /data
 
-echo "=== Start dir2cast ==="
-dir2cast /data --port 3000 &
+echo "=== Start RSS server ==="
+python app.py &
 
 while true; do
   echo "=== Pobieranie ==="
@@ -21,7 +21,7 @@ while true; do
     -o "/data/%(upload_date)s-%(title)s.%(ext)s" \
     "$PLAYLIST_URL"
 
-  echo "=== Czyszczenie (zostaw 2) ==="
+  echo "=== Czyszczenie (2 najnowsze) ==="
   ls -t /data/*.mp3 2>/dev/null | tail -n +3 | xargs -r rm --
 
   echo "=== Sleep 1h ==="
