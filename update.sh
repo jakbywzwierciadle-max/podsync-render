@@ -18,7 +18,7 @@ while IFS= read -r URL; do
     --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
     --extractor-args "youtube:player_client=web" \
     --force-ipv4 \
-    -f "bestaudio* / bestaudio / best / 18" \
+    -f "bestaudio* / bestaudio / best / 18 / 22"
     --extract-audio \
     --audio-format mp3 \
     --audio-quality 0 \
