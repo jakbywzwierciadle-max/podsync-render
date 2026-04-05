@@ -24,35 +24,15 @@ fi
 while read -r URL || [ -n "$URL" ]; do
     # Usuwanie znaków Windows (\r) i zbędnych spacji
     URL=$(echo "$URL" | tr -d '\r' | xargs)
+    
+    # Pominięcie pustych linii i komentarzy
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
 
     echo "--- Przetwarzam: $URL ---"
 
-    # KOMENDA W JEDNEJ LINII - to gwarantuje brak błędów "command not found" i "syntax error"
-    yt-dlp --cookies "$COOKIES_FILE" --user-agent "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1" --extractor-args "youtube:player-client=android,ios;skip=webpage_signature" --compat-options no-youtube-unavailable-videos --force-ipv4 --no-check-certificate --match-filter "live_status != upcoming" -f "ba/b" --extract-audio --audio-format mp3 --audio-quality 0 --playlist-end 3 --no-warnings --ignore-errors --no-mtime --download-archive "$DATA_DIR/downloaded.txt" --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" "$URL"
-
-done < "$CHANNELS_FILE"
-
-# 3. GENEROWANIE RSS DLA PODCASTU
-echo "Generuję RSS..."
-if [ -f "/app/dir2cast.php" ]; then
-    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
-    echo "Plik feed.xml został zaktualizowany."
-else
-    echo "Błąd: Nie znaleziono /app/dir2cast.php"
-fi
-
-echo "=== Zakończono: $(date) ==="
-    yt-dlp --cookies "$COOKIES_FILE" --user-agent "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1" --extractor-args "youtube:player-client=android,ios;skip=webpage_signature" --compat-options no-youtube-unavailable-videos --force-ipv4 --no-check-certificate --match-filter
-# 3. Generowanie RSS dla Podcastu
-echo "Generuję RSS..."
-if [ -f "/app/dir2cast.php" ]; then
-    # Przekierowanie wyjścia do feed.xml
-    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
-    echo "Plik RSS został zaktualizowany."
-else
-    echo "Błąd: Nie znaleziono /app/dir2cast.php"
-fi
-
-echo "=== Zakończono: $(date) ==="
-echo "=== Zakończono: $(date) ==="
+    # KOMENDA ZOPTYMALIZOWANA:
+    # 1. extractor-args: dodano 'web', aby uniknąć błędów rozpoznawania tablicy filmów
+    # 2. user-agent: zmieniony na bardziej standardowy dla lepszej kompatybilności
+    yt-dlp \
+        --cookies "$COOKIES_FILE" \
+        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.
