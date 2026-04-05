@@ -1,39 +1,40 @@
 #!/bin/bash
 
-echo "=== Aktualizacja $(date) ==="
+echo "=== DIAGNOSTYKA ŚRODOWISKA RAILWAY ==="
+echo "Data: $(date)"
 
-# Konfiguracja ścieżek
-DATA_DIR="/data"
-CHANNELS_FILE="/app/channels.txt"
-COOKIES_FILE="/app/cookies.txt"
-
-# Tworzenie folderu danych, jeśli nie istnieje
-mkdir -p "$DATA_DIR"
-
-# 1. AKTUALIZACJA NARZĘDZI
-echo "Aktualizacja yt-dlp do najnowszej wersji..."
-# Na Railway warto upewnić się, że yt-dlp jest świeże przy każdym restarcie
-python3 -m pip install --upgrade pip yt-dlp --root-user-action=ignore > /dev/null 2>&1
-
-# Sprawdzenie czy plik z kanałami istnieje
-if [ ! -f "$CHANNELS_FILE" ]; then
-    echo "Błąd: Plik $CHANNELS_FILE nie istnieje!"
-    exit 1
+# 1. Sprawdzenie FFmpeg
+echo -e "\n[1/3] Sprawdzanie FFmpeg:"
+if command -v ffmpeg >/dev/null 2>&1; then
+    ffmpeg -version | head -n 1
+    echo "STATUS: FFmpeg jest zainstalowany."
+else
+    echo "STATUS: BŁĄD - Brak FFmpeg! Bez tego yt-dlp nie stworzy pliku MP3."
 fi
 
-# 2. PĘTLA PRZETWARZAJĄCA KANAŁY
-while read -r URL || [ -n "$URL" ]; do
-    URL=$(echo "$URL" | tr -d '\r' | xargs)
-    [[ -z "$URL" || "$URL" =~ ^# ]] && continue
+# 2. Sprawdzenie wersji yt-dlp
+echo -e "\n[2/3] Sprawdzanie yt-dlp:"
+yt-dlp --version
+python3 -m pip install --upgrade yt-dlp --root-user-action=ignore > /dev/null 2>&1
+echo "Po aktualizacji:"
+yt-dlp --version
 
-    echo "--- Przetwarzam: $URL ---"
+# 3. Test formatów dla konkretnego filmu
+# Używamy filmu, który sprawiał problemy
+TEST_ID="9OMhmX7nf6I"
+COOKIES_FILE="/app/cookies.txt"
 
-    # KOMENDA YT-DLP
-    # Dodano --no-cache-dir, co czasem pomaga na serwerach typu Railway/Docker
-    yt-dlp \
-        --cookies "$COOKIES_FILE" \
-        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-        --extractor-args "youtube:player-client=web,mweb" \
+echo -e "\n[3/3] Próba odczytu formatów dla $TEST_ID:"
+
+if [ -f "$COOKIES_FILE" ]; then
+    echo "Plik cookies.txt znaleziony. Próbuję z ciasteczkami..."
+    yt-dlp --cookies "$COOKIES_FILE" --list-formats "$TEST_ID"
+else
+    echo "UWAGA: Brak pliku $COOKIES_FILE! Próbuję bez ciasteczek..."
+    yt-dlp --list-formats "$TEST_ID"
+fi
+
+echo -e "\n=== KONIEC DIAGNOSTYKI ==="
         --force-ipv4 \
         --no-check-certificate \
         --no-cache-dir \
