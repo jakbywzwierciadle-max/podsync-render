@@ -30,16 +30,18 @@ while read -r URL || [ -n "$URL" ]; do
 
     echo "--- Przetwarzam: $URL ---"
 
-    # KOMENDA YT-DLP (Upewnij się, że każdy backslash \ jest na końcu linii)
+    # KOMENDA YT-DLP
+    # Zmieniono -f na "bestaudio/best", aby uniknąć błędu "Format not available"
+    # Dodano 'web' do extractor-args, aby poprawnie czytać listy filmów
     yt-dlp \
         --cookies "$COOKIES_FILE" \
-        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" \
+        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
         --extractor-args "youtube:player-client=ios,web,mweb;skip=webpage_signature" \
         --compat-options no-youtube-unavailable-videos \
         --force-ipv4 \
         --no-check-certificate \
         --match-filter "live_status != upcoming" \
-        -f "ba/b" \
+        -f "bestaudio/best" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
@@ -47,6 +49,7 @@ while read -r URL || [ -n "$URL" ]; do
         --no-warnings \
         --ignore-errors \
         --no-mtime \
+        --add-metadata \
         --download-archive "$DATA_DIR/downloaded.txt" \
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
         "$URL"
@@ -56,6 +59,7 @@ done < "$CHANNELS_FILE"
 # 3. GENEROWANIE RSS DLA PODCASTU
 echo "Generuję RSS..."
 if [ -f "/app/dir2cast.php" ]; then
+    # Uruchomienie skryptu PHP i przekierowanie wyjścia do pliku feed
     php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
     echo "Plik feed.xml został zaktualizowany."
 else
