@@ -12,6 +12,7 @@ mkdir -p "$DATA_DIR"
 
 # 1. AKTUALIZACJA NARZĘDZI
 echo "Aktualizacja yt-dlp do najnowszej wersji..."
+# Na Railway warto upewnić się, że yt-dlp jest świeże przy każdym restarcie
 python3 -m pip install --upgrade pip yt-dlp --root-user-action=ignore > /dev/null 2>&1
 
 # Sprawdzenie czy plik z kanałami istnieje
@@ -22,18 +23,48 @@ fi
 
 # 2. PĘTLA PRZETWARZAJĄCA KANAŁY
 while read -r URL || [ -n "$URL" ]; do
-    # Usuwanie znaków Windows (\r) i zbędnych spacji
     URL=$(echo "$URL" | tr -d '\r' | xargs)
-    
-    # Pominięcie pustych linii i komentarzy
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
 
     echo "--- Przetwarzam: $URL ---"
 
     # KOMENDA YT-DLP
-    # -f "ba/b": Pobiera najlepsze audio (jak 251 lub 140), a jeśli brak, to cały film.
-    # --restrict-filenames: Zamienia spacje i polskie znaki na bezpieczne (np. 'ó' -> 'o').
-    # --extractor-args: Używa klienta webowego, który jest najstabilniejszy dla formatów audio.
+    # Dodano --no-cache-dir, co czasem pomaga na serwerach typu Railway/Docker
+    yt-dlp \
+        --cookies "$COOKIES_FILE" \
+        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
+        --extractor-args "youtube:player-client=web,mweb" \
+        --force-ipv4 \
+        --no-check-certificate \
+        --no-cache-dir \
+        --match-filter "live_status != upcoming & live_status != was_live" \
+        -f "ba/b" \
+        --extract-audio \
+        --audio-format mp3 \
+        --audio-quality 0 \
+        --playlist-end 3 \
+        --ignore-errors \
+        --no-warnings \
+        --no-mtime \
+        --add-metadata \
+        --restrict-filenames \
+        --download-archive "$DATA_DIR/downloaded.txt" \
+        --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
+        "$URL"
+
+done < "$CHANNELS_FILE"
+
+# 3. GENEROWANIE RSS DLA PODCASTU
+echo "Generuję RSS..."
+if [ -f "/app/dir2cast.php" ]; then
+    # Uruchomienie skryptu PHP
+    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
+    echo "Plik feed.xml został zaktualizowany."
+else
+    echo "Błąd: Nie znaleziono /app/dir2cast.php"
+fi
+
+echo "=== Zakończono: $(date) ==="
     yt-dlp \
         --cookies "$COOKIES_FILE" \
         --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
