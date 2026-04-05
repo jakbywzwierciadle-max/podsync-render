@@ -12,7 +12,8 @@ mkdir -p "$DATA_DIR"
 
 # 1. AKTUALIZACJA NARZĘDZI
 echo "Aktualizacja yt-dlp do najnowszej wersji..."
-pip install --upgrade pip yt-dlp --root-user-action=ignore > /dev/null 2>&1
+# Używamy python3 -m pip dla większej stabilności w kontenerach
+python3 -m pip install --upgrade pip yt-dlp --root-user-action=ignore > /dev/null 2>&1
 
 # Sprawdzenie czy plik z kanałami istnieje
 if [ ! -f "$CHANNELS_FILE" ]; then
@@ -31,25 +32,27 @@ while read -r URL || [ -n "$URL" ]; do
     echo "--- Przetwarzam: $URL ---"
 
     # KOMENDA YT-DLP
-    # Zmieniono -f na "bestaudio/best", aby uniknąć błędu "Format not available"
-    # Dodano 'web' do extractor-args, aby poprawnie czytać listy filmów
+    # Zmiany: 
+    # - Ustawiono preferencję formatów ba/b (best audio / best)
+    # - Zmieniono player-client na web,mweb (ios często powoduje brak formatów przy audio)
+    # - Dodano --restrict-filenames dla bezpieczeństwa RSS
     yt-dlp \
         --cookies "$COOKIES_FILE" \
         --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-        --extractor-args "youtube:player-client=ios,web,mweb;skip=webpage_signature" \
-        --compat-options no-youtube-unavailable-videos \
+        --extractor-args "youtube:player-client=web,mweb" \
         --force-ipv4 \
         --no-check-certificate \
-        --match-filter "live_status != upcoming" \
-        -f "bestaudio/best" \
+        --match-filter "live_status != upcoming & live_status != was_live" \
+        -f "ba/b" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
         --playlist-end 3 \
-        --no-warnings \
         --ignore-errors \
+        --no-warnings \
         --no-mtime \
         --add-metadata \
+        --restrict-filenames \
         --download-archive "$DATA_DIR/downloaded.txt" \
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
         "$URL"
@@ -60,6 +63,7 @@ done < "$CHANNELS_FILE"
 echo "Generuję RSS..."
 if [ -f "/app/dir2cast.php" ]; then
     # Uruchomienie skryptu PHP i przekierowanie wyjścia do pliku feed
+    # Upewnij się, że dir2cast jest skonfigurowany pod folder /data
     php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
     echo "Plik feed.xml został zaktualizowany."
 else
