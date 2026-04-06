@@ -15,18 +15,15 @@ while IFS= read -r URL; do
 
         yt-dlp \
         --cookies "$COOKIES_FILE" \
-        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
-        --force-ipv4 \
         --no-check-certificates \
-        -f "bestaudio/best" \
+        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
+        -f "ba[ext=m4a]/ba[ext=webm]/ba/b" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
         --playlist-end 1 \
         --match-filter "!is_live & !was_live & duration > 30" \
-        --no-warnings \
         --ignore-errors \
-        --prefer-free-formats \
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
         "$URL"
 
