@@ -18,6 +18,7 @@ if [ ! -f "$CHANNELS_FILE" ]; then
 fi
 
 # 1. POBIERANIE WIDEO/AUDIO
+# Używamy poprawnej pętli bez powtórzeń
 while read -r URL || [ -n "$URL" ]; do
     # Pomijaj puste linie i komentarze
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
@@ -25,10 +26,11 @@ while read -r URL || [ -n "$URL" ]; do
     echo "--- Pobieranie: $URL ---"
 
     # Uruchomienie yt-dlp
+    # Zmieniono format na "ba" (best audio) i usunięto problematyczne parametry
     yt-dlp \
         --cookies "$COOKIES_FILE" \
         --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-        --extractor-args "youtube:player-client=web,mweb" \
+        --extractor-args "youtube:player-client=web" \
         --force-ipv4 \
         --no-check-certificate \
         --match-filter "live_status != upcoming & live_status != was_live" \
@@ -51,16 +53,20 @@ done < "$CHANNELS_FILE"
 # 2. GENEROWANIE RSS
 echo "Generuję RSS..."
 
-# Próba Python
+# Opcja A: Jeśli masz skrypt Python (gen_rss.py)
 if [ -f "gen_rss.py" ]; then
     python3 gen_rss.py
     echo "RSS wygenerowany przez Python."
 fi
 
-# Próba PHP (dir2cast)
+# Opcja B: Jeśli używasz dir2cast (PHP)
 if [ -f "/app/dir2cast.php" ]; then
+    # Zwróć uwagę, czy dir2cast powinien wypisywać do pliku, czy sam go tworzy
     php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/$RSS_OUTPUT"
     echo "RSS wygenerowany przez dir2cast (PHP)."
+fi
+
+echo "=== Zakończono: $(date) ==="
 fi
 
 echo "=== Zakończono: $(date) ==="
