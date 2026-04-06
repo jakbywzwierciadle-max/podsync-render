@@ -1,59 +1,37 @@
 #!/bin/bash
 
-# --- KONFIGURACJA ---
-CHANNELS_FILE="channels.txt"
-COOKIES_FILE="cookies.txt"
-DATA_DIR="downloads"
-RSS_OUTPUT="feed.xml"
+echo "=== Aktualizacja $(date) ==="
 
-echo "=== Start Aktualizacji: $(date) ==="
+DATA_DIR="/data"
+CHANNELS_FILE="/app/channels.txt"
+COOKIES_FILE="/app/cookies.txt"
 
-# Tworzenie folderu na dane
 mkdir -p "$DATA_DIR"
 
-# Sprawdzenie czy plik z kanałami istnieje
-if [ ! -f "$CHANNELS_FILE" ]; then
-    echo "BŁĄD: Nie znaleziono pliku $CHANNELS_FILE"
-    exit 1
-fi
-
-# 1. POBIERANIE AUDIO Z YOUTUBE
-while read -r URL || [ -n "$URL" ]; do
+while IFS= read -r URL; do
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
 
-    echo "--- Pobieranie: $URL ---"
+    echo "Pobieram z: $URL"
 
     yt-dlp \
         --cookies "$COOKIES_FILE" \
-        --user-agent "Mozilla/5.0" \
-        --extractor-args "youtube:player-client=android" \
+        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
+        --extractor-args "youtube:player_client=web,web_creator,android,ios,tv" \
         --force-ipv4 \
-        --no-check-certificate \
-        --match-filter "live_status != upcoming & live_status != was_live" \
-        -f "bestaudio/best" \
+        -f "bestaudio* / bestaudio / best / 18 / 22" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
-        --playlist-end 3 \
-        --ignore-errors \
+        --playlist-end 1 \
+        --match-filter "!is_live & !was_live & duration > 30" \
         --no-warnings \
-        --no-mtime \
-        --add-metadata \
-        --restrict-filenames \
-        --download-archive "$DATA_DIR/downloaded.txt" \
+        --ignore-errors \
         --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
         "$URL"
 
 done < "$CHANNELS_FILE"
 
-# 2. GENEROWANIE RSS
 echo "Generuję RSS..."
+php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
 
-if [ -f "/app/dir2cast.php" ]; then
-    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/$RSS_OUTPUT"
-    echo "Plik feed.xml został zaktualizowany."
-else
-    echo "Błąd: Nie znaleziono /app/dir2cast.php"
-fi
-
-echo "=== Zakończono: $(date) ==="
+echo "=== Zakończono ==="
