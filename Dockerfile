@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-# Instalujemy zależności: PHP, FFmpeg, Curl ORAZ NODEJS
+# 1. Instalujemy zależności systemowe, w tym NODEJS
 RUN apt-get update && apt-get install -y \
     php-cli \
     php-xml \
@@ -9,15 +9,18 @@ RUN apt-get update && apt-get install -y \
     nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Aktualizujemy yt-dlp do najnowszej wersji
+# 2. Instalujemy i wymuszamy najnowszą wersję yt-dlp
 RUN pip install --no-cache-dir -U yt-dlp Flask python-dotenv
 
 WORKDIR /app
+
+# 3. Kopiujemy pliki projektu
 COPY . /app
 
-# Usuwamy windowsowe końcówki linii i dajemy uprawnienia
+# 4. Naprawa końcówek linii (ważne przy pracy na Windows) i uprawnienia
 RUN sed -i 's/\r$//' /app/update.sh && chmod +x /app/update.sh
 RUN sed -i 's/\r$//' /app/start.sh && chmod +x /app/start.sh
 
 EXPOSE 3000
+
 CMD ["/app/start.sh"]
