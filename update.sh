@@ -1,64 +1,52 @@
 #!/bin/bash
 
-# Konfiguracja
-DATA_DIR="/data"
-CHANNELS_FILE="/app/channels.txt"
-COOKIES_FILE="/app/cookies.txt"
+# Konfiguracja ścieżek
+CHANNELS_FILE="channels.txt"
+COOKIES_FILE="cookies.txt"
+DOWNLOAD_DIR="downloads"
+RSS_OUTPUT="feed.xml"
 
-mkdir -p "$DATA_DIR"
 echo "=== Start Aktualizacji: $(date) ==="
 
-# 1. AKTUALIZACJA NARZĘDZI
-python3 -m pip install --upgrade pip yt-dlp --root-user-action=ignore > /dev/null 2>&1
+# Tworzenie folderu na pobrane pliki, jeśli nie istnieje
+mkdir -p "$DOWNLOAD_DIR"
 
+# Sprawdzenie czy plik z kanałami istnieje
 if [ ! -f "$CHANNELS_FILE" ]; then
-    echo "Błąd: Plik $CHANNELS_FILE nie istnieje!"
+    echo "BŁĄD: Nie znaleziono pliku $CHANNELS_FILE"
     exit 1
 fi
 
-# 2. PĘTLA PRZETWARZAJĄCA KANAŁY
-while read -r URL || [ -n "$URL" ]; do
-    URL=$(echo "$URL" | tr -d '\r' | xargs)
-    [[ -z "$URL" || "$URL" =~ ^# ]] && continue
+# Pętla czytająca kanały linia po linii
+while read -r CHANNEL_URL || [ -n "$CHANNEL_URL" ]; do
+    # Pomijaj puste linie i komentarze
+    [[ -z "$CHANNEL_URL" || "$CHANNEL_URL" =~ ^# ]] && continue
 
-    echo "--- Pobieranie: $URL ---"
+    echo "--- Pobieranie: $CHANNEL_URL ---"
 
-    # KOMENDA W JEDNEJ LINII (eliminujemy błędy składni)
-    yt-dlp --cookies "$COOKIES_FILE" --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" --extractor-args "youtube:player-client=web,mweb" --force-ipv4 --no-check-certificate --match-filter "live_status != upcoming & live_status != was_live" -f "ba/b" --extract-audio --audio-format mp3 --audio-quality 0 --playlist-end 3 --ignore-errors --no-warnings --no-mtime --add-metadata --restrict-filenames --download-archive "$DATA_DIR/downloaded.txt" --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" "$URL"
+    # Uruchomienie yt-dlp
+    # Zastosowano flagę -f "ba/b" by uniknąć błędów formatu przy pobieraniu audio
+    yt-dlp \
+        --cookies "$COOKIES_FILE" \
+        --format "ba/b" \
+        --extract-audio \
+        --audio-format mp3 \
+        --audio-quality 0 \
+        --playlist-end 3 \
+        --output "$DOWNLOAD_DIR/%(uploader)s - %(title)s.%(ext)s" \
+        --download-archive "archive.txt" \
+        --no-post-overwrites \
+        "$CHANNEL_URL"
 
 done < "$CHANNELS_FILE"
 
-# 3. GENEROWANIE RSS
 echo "Generuję RSS..."
-if [ -f "/app/dir2cast.php" ]; then
-    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
-    echo "Plik feed.xml zaktualizowany."
-else
-    echo "Błąd: Brak /app/dir2cast.php"
-fi
+# Tutaj wywołanie Twojego skryptu generującego RSS (np. python gen_rss.py)
+# Zakładam, że masz tam własną logikę - upewnij się, że ścieżka jest poprawna
+python3 gen_rss.py
 
+echo "Plik $RSS_OUTPUT zaktualizowany."
 echo "=== Zakończono: $(date) ==="
-
-# 3. GENEROWANIE RSS
-echo "Generuję RSS..."
-if [ -f "/app/dir2cast.php" ]; then
-    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/feed.xml"
-    echo "Plik feed.xml zaktualizowany."
-else
-    echo "Błąd: Brak /app/dir2cast.php"
-fi
-
-echo "=== Zakończono: $(date) ==="
-        --playlist-end 3 \
-        --ignore-errors \
-        --no-warnings \
-        --no-mtime \
-        --add-metadata \
-        --restrict-filenames \
-        --download-archive "$DATA_DIR/downloaded.txt" \
-        --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
-        "$URL"
-
 done < "$CHANNELS_FILE"
 
 # 3. GENEROWANIE RSS
