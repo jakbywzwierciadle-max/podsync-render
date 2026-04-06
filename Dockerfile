@@ -1,7 +1,6 @@
 FROM python:3.11-slim
 
-# Instalujemy zależności systemowe
-# Dodajemy curl, aby móc pobrać nowszą wersję Node.js jeśli zajdzie potrzeba
+# Instalujemy zależności systemowe: PHP, FFmpeg, Curl i Node.js
 RUN apt-get update && apt-get install -y \
     php-cli \
     php-xml \
@@ -11,21 +10,22 @@ RUN apt-get update && apt-get install -y \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalujemy yt-dlp i Flask
-# Dodajemy python-dotenv na prośbę z logów
-RUN pip install --no-cache-dir yt-dlp Flask python-dotenv
+# Instalujemy i aktualizujemy yt-dlp oraz Flask
+RUN pip install --no-cache-dir -U yt-dlp Flask python-dotenv
 
 WORKDIR /app
 
 # Kopiujemy pliki projektu
 COPY . /app
 
-# Naprawa końcówek linii (bardzo ważne, jeśli edytujesz na Windows/Telefonie)
-# Usuwa ukryte znaki \r, które psują skrypty bash
+# Kluczowe: Naprawa końcówek linii i uprawnienia
 RUN sed -i 's/\r$//' /app/update.sh && chmod +x /app/update.sh
+
+# Tworzymy folder na pliki mp3
+RUN mkdir -p /app/downloads
 
 EXPOSE 3000
 
-# Poprawiony start: najpierw Flask (żeby Railway nie ubił kontenera za brak bindowania portu),
-# a potem update w tle po krótkiej pauzie.
-CMD bash -c "python3 /app/app.py & (sleep 5 && /app/update.sh)"
+# Startujemy Flask i skrypt w tle
+# Używamy gunicorn (jeśli masz zainstalowany) lub python3
+CMD bash -c "python3 /app/app.py & (sleep 10 && /app/update.sh)"
