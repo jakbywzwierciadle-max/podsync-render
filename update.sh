@@ -13,10 +13,8 @@ while IFS= read -r URL; do
 
     echo "Pobieram z: $URL"
 
-        yt-dlp \
+      yt-dlp \
         --cookies "$COOKIES_FILE" \
-        --no-check-certificates \
-        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0 Safari/537.36" \
         -f "ba[ext=m4a]/ba[ext=webm]/ba/b" \
         --extract-audio \
         --audio-format mp3 \
