@@ -17,7 +17,7 @@ if [ ! -f "$CHANNELS_FILE" ]; then
     exit 1
 fi
 
-# 1. POBIERANIE WIDEO/AUDIO
+# 1. POBIERANIE AUDIO Z YOUTUBE
 while read -r URL || [ -n "$URL" ]; do
     [[ -z "$URL" || "$URL" =~ ^# ]] && continue
 
@@ -25,12 +25,12 @@ while read -r URL || [ -n "$URL" ]; do
 
     yt-dlp \
         --cookies "$COOKIES_FILE" \
-        --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
-        --extractor-args "youtube:player-client=web,mweb" \
+        --user-agent "Mozilla/5.0" \
+        --extractor-args "youtube:player-client=android" \
         --force-ipv4 \
         --no-check-certificate \
         --match-filter "live_status != upcoming & live_status != was_live" \
-        -f "ba/b" \
+        -f "bestaudio/best" \
         --extract-audio \
         --audio-format mp3 \
         --audio-quality 0 \
