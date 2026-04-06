@@ -3,7 +3,7 @@
 # --- KONFIGURACJA ---
 CHANNELS_FILE="channels.txt"
 COOKIES_FILE="cookies.txt"
-DATA_DIR="downloads"         # Sprawdź czy używasz 'downloads' czy 'data'
+DATA_DIR="downloads"
 RSS_OUTPUT="feed.xml"
 
 echo "=== Start Aktualizacji: $(date) ==="
@@ -24,7 +24,7 @@ while read -r URL || [ -n "$URL" ]; do
 
     echo "--- Pobieranie: $URL ---"
 
-    # Uruchomienie yt-dlp z poprawionymi flagami
+    # Uruchomienie yt-dlp
     yt-dlp \
         --cookies "$COOKIES_FILE" \
         --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36" \
@@ -32,8 +32,38 @@ while read -r URL || [ -n "$URL" ]; do
         --force-ipv4 \
         --no-check-certificate \
         --match-filter "live_status != upcoming & live_status != was_live" \
+        -f "ba/b" \
         --extract-audio \
         --audio-format mp3 \
+        --audio-quality 0 \
+        --playlist-end 3 \
+        --ignore-errors \
+        --no-warnings \
+        --no-mtime \
+        --add-metadata \
+        --restrict-filenames \
+        --download-archive "$DATA_DIR/downloaded.txt" \
+        --output "$DATA_DIR/%(upload_date)s-%(title)s.%(ext)s" \
+        "$URL"
+
+done < "$CHANNELS_FILE"
+
+# 2. GENEROWANIE RSS
+echo "Generuję RSS..."
+
+# Próba Python
+if [ -f "gen_rss.py" ]; then
+    python3 gen_rss.py
+    echo "RSS wygenerowany przez Python."
+fi
+
+# Próba PHP (dir2cast)
+if [ -f "/app/dir2cast.php" ]; then
+    php /app/dir2cast.php /app/dir2cast.ini > "$DATA_DIR/$RSS_OUTPUT"
+    echo "RSS wygenerowany przez dir2cast (PHP)."
+fi
+
+echo "=== Zakończono: $(date) ==="
         --audio-quality 0 \
         --playlist-end 3 \
         --ignore-errors \
